@@ -49,9 +49,11 @@
                     var addr2 = "";
                     if(data != null && data.address != null){
                         if(data.address.province){
+                            // 州
                             addr1 = data.address.province;
                         }
                         if(data.address.state){
+                            // 州
                             if(!addr1){
                                 addr1 = data.address.state;
                             }else if(!addr2){
@@ -66,6 +68,7 @@
                             }
                         }
                         if(data.address.county){
+                            // 群
                             if(!addr1){
                                 addr1 = data.address.county;
                             }else if(!addr2){
@@ -73,6 +76,7 @@
                             }
                         }
                         if(data.address.city){
+                            // 市町村
                             if(!addr1){
                                 addr1 = data.address.city;
                             }else if(!addr2){
@@ -80,6 +84,7 @@
                             }
                         }
                         if(data.address.district){
+                            // 地区
                             if(!addr1){
                                 addr1 = data.address.district;
                             }else if(!addr2){
@@ -87,6 +92,7 @@
                             }
                         }
                         if(data.address.suburb){
+                            // 
                             if(!addr1){
                                 addr1 = data.address.suburb;
                             }else if(!addr2){
@@ -94,6 +100,7 @@
                             }
                         }
                         if(data.address.town){
+                            // 町
                             if(!addr1){
                                 addr1 = data.address.town;
                             }else if(!addr2){
@@ -101,6 +108,7 @@
                             }
                         }
                         if(data.address.village){
+                            // 村
                             if(!addr1){
                                 addr1 = data.address.village;
                             }else if(!addr2){
@@ -108,6 +116,7 @@
                             }
                         }
                         if(data.address.neighbourhood){
+                            //
                             if(!addr1){
                                 addr1 = data.address.neighbourhood;
                             }else if(!addr2){
@@ -115,6 +124,7 @@
                             }
                         }
                         if(data.address.road){
+                            // 道
                             if(!addr1){
                                 addr1 = data.address.road;
                             }else if(!addr2){
