@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #result{
+                width:640px;
+                height:32px;
+            }
+            #log{
+                width:640px;
+                height:240px;
+            };
+        </style>
+
+        <script>
+            var isGeolocSupport
+            if (navigator.geolocation) {
+                isGeolocSupport = true;
+            } else {
+                isGeolocSupport = false;
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                if(isGeolocSupport){
+                    navigator.geolocation.getCurrentPosition(function(position){
+                        // 位置情報が取得できた場合
+                        var request = new XMLHttpRequest();
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        getAddress(lat, lon);
+                    },
+                    function(error){
+                        // 位置情報が取得できない場合
+                    },{
+                        // オプション
+                        enableHighAccuracy : true,
+                        timeout : 30 * 1000,
+                        maximumAge : 60 * 1000
+                    });
+                }
+            });
+
+            function getAddress(lat, lon){
+                var request = new XMLHttpRequest();
+                request.onload = function () {
+                    var data = this.response;
+                    var result = document.getElementById('result');
+
+                    var addr1 = "";
+                    var addr2 = "";
+                    if(data != null && data.address != null){
+                        if(data.address.province){
+                            addr1 = data.address.province;
+                        }
+                        if(data.address.state){
+                            if(!addr1){
+                                addr1 = data.address.state;
+                            }else if(!addr2){
+                                addr2 = data.address.state;
+                            }
+                        }
+                        if(data.address.region){
+                            if(!addr1){
+                                addr1 = data.address.region;
+                            }else if(!addr2){
+                                addr2 = data.address.region;
+                            }
+                        }
+                        if(data.address.county){
+                            if(!addr1){
+                                addr1 = data.address.county;
+                            }else if(!addr2){
+                                addr2 = data.address.county;
+                            }
+                        }
+                        if(data.address.city){
+                            if(!addr1){
+                                addr1 = data.address.city;
+                            }else if(!addr2){
+                                addr2 = data.address.city;
+                            }
+                        }
+                        if(data.address.district){
+                            if(!addr1){
+                                addr1 = data.address.district;
+                            }else if(!addr2){
+                                addr2 = data.address.district;
+                            }
+                        }
+                        if(data.address.suburb){
+                            if(!addr1){
+                                addr1 = data.address.suburb;
+                            }else if(!addr2){
+                                addr2 = data.address.suburb;
+                            }
+                        }
+                        if(data.address.town){
+                            if(!addr1){
+                                addr1 = data.address.town;
+                            }else if(!addr2){
+                                addr2 = data.address.town;
+                            }
+                        }
+                        if(data.address.village){
+                            if(!addr1){
+                                addr1 = data.address.village;
+                            }else if(!addr2){
+                                addr2 = data.address.village;
+                            }
+                        }
+                        if(data.address.neighbourhood){
+                            if(!addr1){
+                                addr1 = data.address.neighbourhood;
+                            }else if(!addr2){
+                                addr2 = data.address.neighbourhood;
+                            }
+                        }
+                        if(data.address.road){
+                            if(!addr1){
+                                addr1 = data.address.road;
+                            }else if(!addr2){
+                                addr2 = data.address.road;
+                            }
+                        }
+                    }
+                    result.innerText = addr1 + addr2;
+
+                    // http://overpass-turbo.eu/で確認できる
+                    // overpass apiで店情報を検索する
+                    var url = "https://overpass-api.de/api/interpreter?" ;
+                    /*
+                            + "data="
+                            + "[out:json][timeout:25];"
+                            + "("
+                            + '  node["shop"="convenience"](' + lat + ',' + lot + ',' + lat + ',' + lot + ');'
+                            + ");"
+                            + "out body;"
+                            + ">"
+                            + "out skel qt;";
+                            */
+                    // https://teratail.com/questions/102891
+                    // 0.00001 が 1m
+                    var areaLen = 0.00001 * 50 * 1000;
+                    var formData = "data="
+                            + "[out:json][timeout:25];"
+                            + "("
+                            + 'node["shop"="convenience"](' + (lat + areaLen * -1) + ',' + (lon + areaLen * -1) + ',' + (lat + areaLen) + ',' + (lon  + areaLen) + ');'
+                            + ");"
+                            + "out body;";
+                    var overpass = new XMLHttpRequest();
+                    var logArea = document.getElementById("log");
+                    logArea.value = "";
+                    overpass.onload = function () {
+                        var data = this.response;
+                        var logArea = document.getElementById("log");
+                        data.elements.forEach(poi => {
+                            logArea.value += poi.tags.name + "\r\n";
+                        });
+                    }
+                    overpass.open('POST', url, true);
+                    overpass.responseType = 'json';
+                    overpass.send(formData);               
+                }
+                //var url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + lat + "&lon=" + lot + "&zoom=18&addressdetails=1";
+                var url = "https://nominatim.openstreetmap.org/reverse?"
+                        + "format=json"
+                        + "&lat=" + lat
+                        + "&lon=" + lon
+                        + "&zoom=18"
+                        + "&addressdetails=1";
+                request.open('GET', url, true);
+                request.responseType = 'json';
+                request.send();
+            }
+        </script>
+
+    </head>
+    <body>
+        <textarea id='result'></textarea><br>
+        <textarea id="log"></textarea>
+    </body>
+</html>
