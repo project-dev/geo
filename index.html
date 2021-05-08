@@ -13,30 +13,19 @@
         </style>
 
         <script>
-            var isGeolocSupport
-            if (navigator.geolocation) {
-                isGeolocSupport = true;
-            } else {
-                isGeolocSupport = false;
-            }
             document.addEventListener('DOMContentLoaded', function() {
-                if(isGeolocSupport){
-                    navigator.geolocation.getCurrentPosition(function(position){
-                        // 位置情報が取得できた場合
-                        var request = new XMLHttpRequest();
-                        var lat = position.coords.latitude;
-                        var lon = position.coords.longitude;
-                        getAddress(lat, lon);
-                    },
-                    function(error){
-                        // 位置情報が取得できない場合
-                    },{
-                        // オプション
-                        enableHighAccuracy : true,
-                        timeout : 30 * 1000,
-                        maximumAge : 60 * 1000
-                    });
-                }
+                navigator.geolocation && navigator.geolocation.getCurrentPosition(function(position){
+                    // 位置情報が取得できた場合
+                    getAddress(position.coords.latitude, position.coords.longitude);
+                },
+                function(error){
+                    // 位置情報が取得できない場合
+                },{
+                    // オプション
+                    enableHighAccuracy : true,
+                    timeout : 30 * 1000,
+                    maximumAge : 60 * 1000
+                });
             });
 
             function getAddress(lat, lon){
@@ -45,94 +34,26 @@
                     var data = this.response;
                     var result = document.getElementById('result');
 
-                    var addr1 = "";
-                    var addr2 = "";
-                    if(data != null && data.address != null){
-                        if(data.address.province){
-                            // 州
-                            addr1 = data.address.province;
-                        }
-                        if(data.address.state){
-                            // 州
-                            if(!addr1){
-                                addr1 = data.address.state;
-                            }else if(!addr2){
-                                addr2 = data.address.state;
-                            }
-                        }
-                        if(data.address.region){
-                            if(!addr1){
-                                addr1 = data.address.region;
-                            }else if(!addr2){
-                                addr2 = data.address.region;
-                            }
-                        }
-                        if(data.address.county){
-                            // 群
-                            if(!addr1){
-                                addr1 = data.address.county;
-                            }else if(!addr2){
-                                addr2 = data.address.county;
-                            }
-                        }
-                        if(data.address.city){
-                            // 市町村
-                            if(!addr1){
-                                addr1 = data.address.city;
-                            }else if(!addr2){
-                                addr2 = data.address.city;
-                            }
-                        }
-                        if(data.address.district){
-                            // 地区
-                            if(!addr1){
-                                addr1 = data.address.district;
-                            }else if(!addr2){
-                                addr2 = data.address.district;
-                            }
-                        }
-                        if(data.address.suburb){
-                            // 
-                            if(!addr1){
-                                addr1 = data.address.suburb;
-                            }else if(!addr2){
-                                addr2 = data.address.suburb;
-                            }
-                        }
-                        if(data.address.town){
-                            // 町
-                            if(!addr1){
-                                addr1 = data.address.town;
-                            }else if(!addr2){
-                                addr2 = data.address.town;
-                            }
-                        }
-                        if(data.address.village){
-                            // 村
-                            if(!addr1){
-                                addr1 = data.address.village;
-                            }else if(!addr2){
-                                addr2 = data.address.village;
-                            }
-                        }
-                        if(data.address.neighbourhood){
-                            //
-                            if(!addr1){
-                                addr1 = data.address.neighbourhood;
-                            }else if(!addr2){
-                                addr2 = data.address.neighbourhood;
-                            }
-                        }
-                        if(data.address.road){
-                            // 道
-                            if(!addr1){
-                                addr1 = data.address.road;
-                            }else if(!addr2){
-                                addr2 = data.address.road;
-                            }
-                        }
+                    var addr = [];
+                    if(data && data.address){
+                        [
+                            'province',
+                            'state',
+                            'region',
+                            'county',
+                            'city',
+                            'distinct',
+                            'suburb',
+                            'town',
+                            'village',
+                            'neighbourhood',
+                            'road'
+                        ].forEach(function(key){
+                            if(!data.address[key]) return;
+                            addr.push(data.address[key])
+                        });
                     }
-                    result.innerText = addr1 + addr2;
+                    result.innerText = addr.slice(0, 2).join('');
 
                     // http://overpass-turbo.eu/で確認できる
                     // overpass apiで店情報を検索する
